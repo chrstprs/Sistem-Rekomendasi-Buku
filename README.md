@@ -1,10 +1,6 @@
 # Sistem-Rekomendasi-Buku
 
-Berikut adalah laporan dalam format `README.md` berdasarkan notebook `Rekomendasi_Buku.ipynb` yang Anda berikan:
-
----
-
-# Laporan Proyek Machine Learning - Christ
+# Laporan Proyek Machine Learning - Damianus Christopher Samosir
 
 ## Project Overview
 
