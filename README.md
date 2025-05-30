@@ -134,12 +134,3 @@ Interpretasi:
 * Evaluasi juga dilakukan secara kualitatif dengan memeriksa rekomendasi manual dari model content-based.
 
 ---
-
-*Catatan:*
-
-* Dataset mengandung data tidak seimbang, perlu augmentasi atau penyesuaian threshold jika digunakan untuk produksi.
-* Proyek ini masih dapat dikembangkan dengan menggabungkan kedua pendekatan menjadi *hybrid recommender system*.
-
----
-
-Jika Anda ingin saya bantu konversi ini ke file `README.md` atau ingin menambahkan visualisasi, saya bisa bantu juga!
