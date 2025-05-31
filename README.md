@@ -119,7 +119,7 @@ semua_isbn = np.unique(np.concatenate([isbn_buku, isbn_rating]))
 ```
 
 * **Penjelasan:**
-  Pada langkah ini, kamu mengambil ISBN dari dua sumber berbeda, yaitu dari data buku dan data rating. Setelah menghapus duplikat dari masing-masing sumber, kamu menggabungkan keduanya dan mengurutkannya menggunakan `np.unique`. Hasilnya adalah kumpulan ISBN unik yang merepresentasikan seluruh buku yang pernah muncul dalam data.
+  Pada langkah ini, saya mengambil ISBN dari dua sumber berbeda, yaitu dari data buku dan data rating. Setelah menghapus duplikat dari masing-masing sumber, saya menggabungkan keduanya dan mengurutkannya menggunakan `np.unique`. Hasilnya adalah kumpulan ISBN unik yang merepresentasikan seluruh buku yang pernah muncul dalam data.
 
 ---
 
@@ -134,7 +134,7 @@ seluruh_user = np.unique(np.concatenate([user_dari_rating, user_dari_users]))
 ```
 
 * **Penjelasan:**
-  Langkah ini bertujuan untuk mengidentifikasi semua pengguna unik dari dua sumber: data rating dan data user. Dengan menghapus duplikat dan menggabungkannya, kamu mendapatkan kumpulan User-ID unik yang penting untuk analisis interaksi atau personalisasi sistem rekomendasi.
+  Langkah ini bertujuan untuk mengidentifikasi semua pengguna unik dari dua sumber: data rating dan data user. Dengan menghapus duplikat dan menggabungkannya, saya mendapatkan kumpulan User-ID unik yang penting untuk analisis interaksi atau personalisasi sistem rekomendasi.
 
 ---
 
@@ -147,7 +147,7 @@ data_buku_rating = df_Books.merge(df_Ratings, on='ISBN', how='inner')
 ```
 
 * **Penjelasan:**
-  Di sini kamu menggabungkan data buku dan data rating berdasarkan kolom `ISBN`. Dengan menggunakan `how='inner'`, hanya data yang memiliki kecocokan di kedua tabel yang akan disertakan. Ini menghasilkan data gabungan yang berisi informasi buku dan rating dari pengguna untuk buku tersebut.
+  Di sini saya menggabungkan data buku dan data rating berdasarkan kolom `ISBN`. Dengan menggunakan `how='inner'`, hanya data yang memiliki kecocokan di kedua tabel yang akan disertakan. Ini menghasilkan data gabungan yang berisi informasi buku dan rating dari pengguna untuk buku tersebut.
 
 ---
 
@@ -173,7 +173,7 @@ data_lengkap.isna().sum()
 ```
 
 * **Penjelasan:**
-  Setelah data lengkap terbentuk, kamu memeriksa apakah terdapat nilai kosong (null/missing) pada kolom-kolom tertentu. Ini penting untuk menilai kualitas data dan menentukan apakah perlu dilakukan penanganan seperti penghapusan atau imputasi nilai.
+  Setelah data lengkap terbentuk, saya memeriksa apakah terdapat nilai kosong (null/missing) pada kolom-kolom tertentu. Ini penting untuk menilai kualitas data dan menentukan apakah perlu dilakukan penanganan seperti penghapusan atau imputasi nilai.
 
 ---
 
@@ -268,8 +268,6 @@ books_final = pd.DataFrame({
 ---
 
 ## Modeling & Results
-
-### Berikut adalah versi penjelasan **Content-Based Filtering** milik Anda dalam format dan gaya penulisan yang **mirip dengan Collaborative Filtering** yang Anda contohkan:
 
 ---
 
@@ -640,7 +638,7 @@ Notebook **Rekomendasi\_Buku.ipynb** hanya memiliki satu judul markdown “**Col
 
 ---
 
-Jika kamu ingin, saya bisa bantu melengkapi notebook tersebut dengan contoh kode Collaborative Filtering berbasis user-user atau menggunakan pendekatan matrix factorization seperti SVD. Apakah kamu ingin saya tambahkan itu ke notebook?
+Jika saya ingin, saya bisa bantu melengkapi notebook tersebut dengan contoh kode Collaborative Filtering berbasis user-user atau menggunakan pendekatan matrix factorization seperti SVD. Apakah saya ingin saya tambahkan itu ke notebook?
 
 
 ---
@@ -651,8 +649,8 @@ Jika kamu ingin, saya bisa bantu melengkapi notebook tersebut dengan contoh kode
 ### **1. Content-Based Filtering (Gambar Pertama)**
 
 #### **Kode dan Proses Evaluasi**
-- **Dataset**: Kamu menggunakan 10.000 sampel untuk evaluasi (`ukuran_sampel = 10000`).
-- **Metrik Evaluasi**: Kamu menghitung **similarity scores** antara **truth** (data asli) dan **prediksi** (hasil model) menggunakan **cosine similarity** dengan fungsi `sklearn.metrics.cosine_similarity`. Nilai prediksi diambil berdasarkan threshold tertentu (`nilai_ambang`).
+- **Dataset**: saya menggunakan 10.000 sampel untuk evaluasi (`ukuran_sampel = 10000`).
+- **Metrik Evaluasi**: saya menghitung **similarity scores** antara **truth** (data asli) dan **prediksi** (hasil model) menggunakan **cosine similarity** dengan fungsi `sklearn.metrics.cosine_similarity`. Nilai prediksi diambil berdasarkan threshold tertentu (`nilai_ambang`).
 - **Metrik yang Digunakan**:
   - **Precision, Recall, dan F1-Score**: Diukur menggunakan `sklearn.metrics` dengan metode `precision_recall_fscore_support`.
   - Parameter `average='binary'` menunjukkan bahwa ini adalah evaluasi untuk klasifikasi biner (benar/salah).
@@ -696,16 +694,16 @@ Dimana:
   - F1-Score adalah harmonic mean dari precision dan recall, sehingga nilai 1.00 menunjukkan performa sempurna.
 
 #### **Interpretasi**
-- Model **Content-Based Filtering** yang kamu evaluasi menunjukkan performa **sempurna** dengan precision, recall, dan F1-Score sebesar 1.00. Ini berarti model sangat akurat dalam memprediksi item yang relevan berdasarkan fitur konten (misalnya, deskripsi atau metadata). Tidak ada kesalahan prediksi (false positive atau false negative) dalam sampel yang dievaluasi.
+- Model **Content-Based Filtering** yang saya evaluasi menunjukkan performa **sempurna** dengan precision, recall, dan F1-Score sebesar 1.00. Ini berarti model sangat akurat dalam memprediksi item yang relevan berdasarkan fitur konten (misalnya, deskripsi atau metadata). Tidak ada kesalahan prediksi (false positive atau false negative) dalam sampel yang dievaluasi.
 
 ---
 
 ### **2. Collaborative Filtering (Gambar Kedua)**
 
 #### **Kode dan Proses Evaluasi**
-- **Metrik Evaluasi**: Kamu menggunakan **RMSE (Root Mean Squared Error)** untuk mengukur error prediksi model.
+- **Metrik Evaluasi**: saya menggunakan **RMSE (Root Mean Squared Error)** untuk mengukur error prediksi model.
   - RMSE dihitung dengan fungsi `root_mean_squared_error` dari `sklearn.metrics`.
-  - Kamu memplot grafik RMSE untuk data **training** dan **validation** selama 25 epoch menggunakan `matplotlib`.
+  - saya memplot grafik RMSE untuk data **training** dan **validation** selama 25 epoch menggunakan `matplotlib`.
 - **Grafik**: Grafik menunjukkan perubahan RMSE pada data training (biru) dan validation (oranye) seiring bertambahnya epoch.
 
 #### Rumus RMSE dan MAE
