@@ -55,7 +55,7 @@ Untuk mencapai tujuan tersebut, dua pendekatan yang digunakan adalah:
 ---
 
 ## Data Understanding
-Dataset yang digunakan adalah [Book-Crossing Dataset](https://www.kaggle.com/datasets/arashnic/book-recommendation-dataset), terdiri dari tiga file utama: `Books.csv`, `Users.csv`, dan `Ratings.csv`.
+Dataset yang digunakan adalah [Book Recommendation Dataset](https://www.kaggle.com/datasets/arashnic/book-recommendation-dataset), terdiri dari tiga file utama: `Books.csv`, `Users.csv`, dan `Ratings.csv`.
 
 ### 1. **Books.csv**
 - **Jumlah Data**: ~271.360 baris.
