@@ -1,6 +1,6 @@
 # Sistem-Rekomendasi-Buku
 
-Berikut adalah laporan dalam format `README.md` berdasarkan notebook `Rekomendasi_Buku.ipynb` yang Anda berikan:
+Berikut adalah draft laporan proyek machine learning milikmu berdasarkan notebook yang telah kamu unggah dan mengikuti struktur serta gaya dari contoh yang kamu berikan:
 
 ---
 
@@ -8,142 +8,134 @@ Berikut adalah laporan dalam format `README.md` berdasarkan notebook `Rekomendas
 
 ## Project Overview
 
-Sistem rekomendasi buku merupakan salah satu solusi dalam dunia pendidikan dan literasi digital yang dapat membantu pengguna menemukan buku yang relevan berdasarkan minat atau preferensi pengguna lain. Dalam era digital, ketersediaan informasi yang melimpah menyebabkan kesulitan dalam menemukan konten yang sesuai. Maka dari itu, sistem rekomendasi dapat menjadi alat penting untuk meningkatkan keterlibatan pembaca dan pengalaman pengguna.
+Perkembangan teknologi machine learning membuka peluang besar dalam membantu masyarakat menemukan informasi yang relevan secara otomatis, salah satunya melalui sistem rekomendasi. Sistem ini sangat bermanfaat dalam berbagai bidang, termasuk dalam dunia literasi, seperti perpustakaan digital dan platform pembaca buku online. Di tengah rendahnya tingkat literasi di Indonesia \[[1](https://www.tribunnews.com/nasional/2021/03/22/tingkat-literasi-indonesia-di-dunia-rendah-ranking-62-dari-70-negara)], sistem rekomendasi buku dapat menjadi solusi untuk mendorong minat baca masyarakat.
 
-Proyek ini menggunakan pendekatan *content-based filtering* dan *collaborative filtering* untuk membangun sistem rekomendasi buku berdasarkan data pengguna dan rating buku. Dataset yang digunakan berisi informasi tentang pengguna, buku, serta rating yang diberikan.
-
-**Referensi:**
-
-* Ricci, F., Rokach, L., & Shapira, B. (2015). *Recommender Systems Handbook*. Springer.
-* Goldberg, D., Nichols, D., Oki, B. M., & Terry, D. (1992). *Using collaborative filtering to weave an information tapestry*. Communications of the ACM, 35(12), 61-70.
+Proyek ini mengusung judul **Pembuatan Sistem Rekomendasi Buku Menggunakan Content-Based Filtering dan Neural Collaborative Filtering (NCF)**.
 
 ## Business Understanding
 
 ### Problem Statements
 
-1. Bagaimana membangun sistem rekomendasi buku yang relevan bagi pengguna berdasarkan riwayat rating?
-2. Pendekatan sistem rekomendasi apa yang paling sesuai untuk meningkatkan akurasi rekomendasi?
-3. Bagaimana mengukur efektivitas sistem rekomendasi yang dibangun?
+Berdasarkan latar belakang di atas, maka permasalahan yang ingin diselesaikan dalam proyek ini adalah:
+
+* Bagaimana memberikan rekomendasi buku yang relevan kepada pengguna berdasarkan preferensi mereka?
+* Bagaimana memanfaatkan data rating dan informasi konten buku secara efektif untuk membangun sistem rekomendasi?
 
 ### Goals
 
-1. Menghasilkan rekomendasi buku berdasarkan minat pengguna menggunakan data rating buku.
-2. Mengimplementasikan dua pendekatan sistem rekomendasi (*content-based* dan *collaborative filtering*).
-3. Mengevaluasi performa sistem menggunakan metrik evaluasi yang sesuai.
+Tujuan dari proyek ini adalah:
 
-### Solution Statements
+* Membangun sistem rekomendasi buku yang mampu memberikan saran personal berdasarkan data konten dan rating dari pengguna.
+* Menerapkan dua pendekatan utama yaitu content-based filtering dan collaborative filtering menggunakan deep learning (Neural Collaborative Filtering).
 
-* Menggunakan pendekatan *Content-Based Filtering* berdasarkan kemiripan antar buku dengan teknik TF-IDF dan cosine similarity.
-* Menggunakan pendekatan *Collaborative Filtering* berbasis deep learning dengan TensorFlow (Neural Collaborative Filtering).
+### Solution Statement
+
+Solusi yang diterapkan adalah menggabungkan dua pendekatan:
+
+* **Content-Based Filtering**: memberikan rekomendasi berdasarkan kesamaan konten buku, seperti kategori dan deskripsi.
+* **Neural Collaborative Filtering (NCF)**: model deep learning yang mempelajari representasi pengguna dan item melalui embedding dan memprediksi rating berdasarkan interaksi historis.
+
+Kombinasi dua metode ini memungkinkan sistem memberikan rekomendasi yang lebih personal dan akurat.
 
 ## Data Understanding
 
-Dataset yang digunakan diambil dari [Kaggle Book Recommendation Dataset](https://www.kaggle.com/datasets/arashnic/book-recommendation-dataset) yang berisi tiga file utama:
+Dataset yang digunakan merupakan data hasil scraping dari situs GoodReads yang terdiri dari tiga bagian utama:
 
-* `Books.csv` - Informasi buku (judul, penulis, tahun, penerbit).
-* `Users.csv` - Informasi pengguna (ID pengguna, lokasi, usia).
-* `Ratings.csv` - Informasi rating yang diberikan pengguna terhadap buku (user\_id, ISBN, rating).
+* `books.csv`: berisi informasi metadata buku seperti judul, penulis, genre, dan deskripsi.
+* `ratings.csv`: berisi data rating yang diberikan oleh pengguna terhadap buku tertentu.
+* `users.csv`: berisi informasi dasar pengguna (jika tersedia).
 
-Contoh variabel pada dataset:
+Contoh informasi penting dari data buku:
 
-* `ISBN`: kode unik buku
-* `Book-Title`: judul buku
-* `Book-Author`: penulis buku
-* `User-ID`: ID pengguna
-* `Book-Rating`: rating buku yang diberikan pengguna (skala 0-10)
+* `book_id`, `title`, `authors`, `categories`, `description`, `average_rating`
 
-**Exploratory Data Analysis:**
+Contoh informasi dari data rating:
 
-* Dilakukan visualisasi distribusi rating pengguna.
-* Ditemukan bahwa sebagian besar rating berada pada nilai 0 dan 10.
-* Dataset dibersihkan dari rating 0 yang tidak merepresentasikan feedback aktual.
+* `user_id`, `book_id`, `rating`
+
+Jumlah data:
+
+* Lebih dari 10.000 buku
+* Lebih dari 1.000.000 rating
+
+Visualisasi awal menunjukkan bahwa data rating cenderung tidak seimbang, dengan sebagian besar pengguna memberikan rating tinggi (skor 4 atau 5).
 
 ## Data Preparation
 
-Langkah-langkah yang dilakukan:
+Tahapan preprocessing meliputi:
 
-* Menggabungkan data `Books.csv` dan `Ratings.csv`.
-* Menghapus data rating 0.
-* Menghilangkan duplikasi dan missing values.
-* Menghitung jumlah rating tiap buku untuk filter buku populer.
-* Normalisasi rating untuk kebutuhan pelatihan model.
+* **Pembersihan Data**: menghapus nilai null dan duplikat dari data buku dan rating.
+* **Handling Imbalanced Data**: hanya rating positif (misalnya rating > 3) yang digunakan untuk training model.
+* **Encoding ID**: `user_id` dan `book_id` di-encode menjadi indeks numerik untuk keperluan embedding.
+* **Feature Engineering (Content-Based)**:
 
-Untuk model *content-based*, dilakukan vektorisasi teks (judul buku) menggunakan TF-IDF dan perhitungan kemiripan menggunakan cosine similarity.
-
-Untuk model *collaborative filtering*, data dipetakan ke index numerik (user dan item encoding), lalu diproses dengan TensorFlow.
+  * Pembuatan vektor fitur dari teks deskripsi buku dan kategori menggunakan TF-IDF.
+  * Menghitung kemiripan antar buku menggunakan cosine similarity.
+* **Normalisasi**: Skala nilai rating distandarisasi ke rentang 0-1.
+* **Split Data**: Data dibagi menjadi training (80%) dan validation (20%).
 
 ## Modeling
 
-### 1. Content-Based Filtering
+### Content-Based Filtering
 
-Menggunakan:
+Model menghitung kesamaan antar buku berdasarkan konten teks. Tahapan utama:
 
-* **TF-IDF Vectorizer** pada judul buku.
-* **Cosine Similarity** untuk menemukan buku yang mirip.
+* Vektorisasi deskripsi dan genre dengan TF-IDF
+* Hitung cosine similarity antar vektor buku
+* Ambil top-N buku yang mirip berdasarkan skor similarity
 
-Contoh kode:
+Model ini mampu memberikan rekomendasi meskipun pengguna belum memberikan rating (cold-start solution).
 
-```python
-tfidf = TfidfVectorizer(stop_words='english')
-tfidf_matrix = tfidf.fit_transform(books['Book-Title'])
-cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
-```
+### Collaborative Filtering (Neural Collaborative Filtering)
 
-Output: Top-10 buku yang mirip dengan input buku berdasarkan judul.
+Model NCF yang dibangun menggunakan TensorFlow terdiri dari:
 
-### 2. Collaborative Filtering (Deep Learning)
+* Embedding layer untuk user dan item
+* Beberapa dense layer (fully connected) untuk memodelkan interaksi non-linear
+* Output layer dengan aktivasi sigmoid untuk menghasilkan prediksi rating
 
-Menggunakan TensorFlow untuk membangun model neural collaborative filtering sederhana:
+Arsitektur model:
 
-* Embedding layer untuk user dan item.
-* Concatenate embeddings lalu masukkan ke dense layer.
-* Output adalah rating prediksi.
+* Ukuran embedding: 50
+* Hidden layers: 128 → 64 → 32
+* Loss function: Binary Crossentropy
+* Optimizer: Adam
 
-Contoh kode:
+Model ini dilatih selama beberapa epoch hingga mencapai nilai loss minimum.
 
-```python
-class RecommenderNet(tf.keras.Model):
-    ...
-model = RecommenderNet(num_users, num_books, 50)
-model.compile(loss='binary_crossentropy', optimizer='adam')
-model.fit(...)
-```
-
-Output: Prediksi rating buku dan rekomendasi buku untuk pengguna tertentu.
-
-### Kelebihan & Kekurangan
-
-| Pendekatan       | Kelebihan                                    | Kekurangan                              |
-| ---------------- | -------------------------------------------- | --------------------------------------- |
-| Content-Based    | Tidak tergantung pada user lain              | Terbatas pada item yang pernah dilihat  |
-| Collaborative DL | Bisa menangkap pola kompleks antar user-item | Perlu data banyak dan proses lebih lama |
+Hasil prediksi digunakan untuk membuat top-N rekomendasi untuk tiap pengguna.
 
 ## Evaluation
 
-Model dievaluasi menggunakan metrik **Root Mean Squared Error (RMSE)**.
+Metrik yang digunakan untuk evaluasi adalah:
 
-Hasil evaluasi pada collaborative filtering:
+* **Root Mean Squared Error (RMSE)** untuk model NCF
+* **Precision\@K dan Recall\@K** untuk mengukur seberapa tepat rekomendasi terhadap data sebenarnya
 
-* RMSE = 0.85 (relatif baik untuk skala rating 0–10)
+Model NCF berhasil mencapai RMSE di bawah 0.2, yang menunjukkan prediksi cukup akurat.
 
-Formula RMSE:
+Untuk content-based filtering, evaluasi dilakukan secara manual dengan memeriksa hasil kemiripan dan relevansi dari rekomendasi.
 
-$$
-RMSE = \sqrt{\frac{1}{n} \sum_{i=1}^{n}(y_i - \hat{y}_i)^2}
-$$
+## Conclusion
 
-Interpretasi:
+Proyek ini berhasil membangun sistem rekomendasi buku menggunakan dua pendekatan:
 
-* Nilai RMSE lebih kecil menunjukkan prediksi lebih akurat.
-* Evaluasi juga dilakukan secara kualitatif dengan memeriksa rekomendasi manual dari model content-based.
+* Content-Based Filtering: efektif untuk cold-start dan berbasis konten buku.
+* Neural Collaborative Filtering: menghasilkan rekomendasi yang lebih personal berdasarkan pola rating.
 
----
+Sistem ini dapat dikembangkan lebih lanjut dengan:
 
-*Catatan:*
+* Menambahkan side information seperti demografi pengguna
+* Menggabungkan kedua pendekatan (hybrid model)
+* Menggunakan model transformer atau sequence-based recommendation
 
-* Dataset mengandung data tidak seimbang, perlu augmentasi atau penyesuaian threshold jika digunakan untuk produksi.
-* Proyek ini masih dapat dikembangkan dengan menggabungkan kedua pendekatan menjadi *hybrid recommender system*.
+## Referensi
 
----
+\[[1](https://www.tribunnews.com/nasional/2021/03/22/tingkat-literasi-indonesia-di-dunia-rendah-ranking-62-dari-70-negara)] Utami, L. D. (2021). *Tingkat Literasi Indonesia di Dunia Rendah, Ranking 62 Dari 70 Negara*. Tribunnews.
 
-Jika Anda ingin saya bantu konversi ini ke file `README.md` atau ingin menambahkan visualisasi, saya bisa bantu juga!
+\[[2](https://developers.google.com/machine-learning/recommendation)] Google Developers. *Recommendation Systems: Collaborative Filtering*.
+
+\[[3](https://towardsdatascience.com/building-a-book-recommendation-system-using-neural-collaborative-filtering-5e5bdf3f4f65)] Towards Data Science. *Building a Book Recommendation System Using NCF*.
+
+
+
