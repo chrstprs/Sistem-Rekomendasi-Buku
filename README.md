@@ -602,9 +602,6 @@ recommended_isbns = [index_to_isbn[book_indices[i][0]] for i in top_indices]
   ![image](https://github.com/user-attachments/assets/3597b364-2372-4785-a15e-92bbe4a20abf)
 
 ---
-Notebook **Rekomendasi\_Buku.ipynb** hanya memiliki satu judul markdown “**Collaborative Filtering**” tanpa penjelasan atau implementasi lanjutan yang terlihat dari isi sel-sel lainnya. Namun, saya bisa tetap menjelaskan **kelebihan dan kekurangan Collaborative Filtering** secara umum—terutama dalam konteks sistem rekomendasi buku—berdasarkan praktik standar dan pengalaman umum penggunaannya.
-
----
 
 ###  Kelebihan Collaborative Filtering
 
