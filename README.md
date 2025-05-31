@@ -1,22 +1,32 @@
-
----
 # Laporan Proyek Machine Learning - Damianus Christopher Samosir
 
 ## Project Overview
 
 ### Latar Belakang
 
-Di era digital saat ini, jumlah informasi yang tersedia dalam bentuk buku—baik cetak maupun digital—terus meningkat. Kondisi ini sering menyulitkan pembaca dalam menemukan buku yang sesuai dengan minat atau kebutuhannya, terlebih jika tidak memiliki referensi atau pengetahuan yang cukup. Maka dari itu, sebuah sistem rekomendasi buku dapat menjadi solusi untuk membantu pengguna menemukan bacaan yang relevan dan sesuai dengan preferensi mereka secara otomatis.
+Di era digital saat ini, ketersediaan informasi dalam bentuk buku—baik cetak maupun digital—meningkat secara signifikan. Hal ini menciptakan tantangan bagi pembaca dalam menemukan bacaan yang sesuai dengan preferensi dan kebutuhan mereka, terutama bagi pengguna baru tanpa riwayat atau referensi sebelumnya. Untuk mengatasi permasalahan ini, sistem rekomendasi buku dapat menjadi solusi yang membantu pengguna menemukan bacaan yang relevan secara otomatis dan personal.
 
-Sistem rekomendasi telah terbukti meningkatkan efisiensi dan pengalaman pengguna dalam memilih produk, termasuk dalam dunia literasi. Menurut penelitian oleh **Ricci et al. (2011)**, sistem rekomendasi berbasis kolaboratif dan konten secara signifikan mampu meningkatkan kepuasan pengguna dengan memberikan saran yang lebih personal dan akurat.
+Sistem rekomendasi terbukti mampu meningkatkan kenyamanan pengguna dalam menelusuri konten dan produk digital, termasuk buku. Penerapan collaborative filtering dan content-based filtering telah banyak digunakan dalam sistem rekomendasi untuk meningkatkan relevansi hasil \[1]. Namun, masing-masing metode memiliki kelemahan. Collaborative filtering sering mengalami masalah cold-start dan sparsity data, sedangkan content-based cenderung terbatas pada rekomendasi yang serupa dengan preferensi pengguna sebelumnya \[2].
 
-Pada proyek ini, dikembangkan sebuah **sistem rekomendasi buku** dengan menggunakan dua pendekatan utama yaitu **content-based filtering** dan **collaborative filtering berbasis neural network (Neural Collaborative Filtering/NCF)**.
+Dalam beberapa tahun terakhir, pendekatan baru seperti **Neural Collaborative Filtering (NCF)** mulai dikembangkan untuk mengatasi kelemahan metode konvensional. NCF menggabungkan kekuatan collaborative filtering dengan kemampuan representasi dari neural network, menghasilkan model yang lebih adaptif dan akurat \[3]. Selain itu, kombinasi informasi metadata seperti genre, deskripsi, atau penulis terbukti meningkatkan akurasi prediksi dalam sistem rekomendasi buku \[4].
 
-Tujuan dari proyek ini adalah untuk:
+Proyek ini mengembangkan sistem rekomendasi buku dengan menggabungkan pendekatan **content-based filtering** dan **collaborative filtering berbasis neural network (NCF)**. Pendekatan hybrid ini diharapkan mampu menyajikan rekomendasi yang lebih relevan dan personal bagi pengguna.
+
+Tujuan dari proyek ini adalah:
 
 * Menganalisis preferensi pembaca berdasarkan data rating dan konten buku.
-* Membangun model sistem rekomendasi yang mampu memberikan saran bacaan secara personal dan akurat.
-* Memberikan insight dan rekomendasi yang dapat meningkatkan pengalaman membaca pengguna.
+* Membangun model sistem rekomendasi yang memberikan saran bacaan yang akurat dan personal.
+* Memberikan insight yang dapat meningkatkan pengalaman membaca pengguna.
+
+### Referensi
+
+\[1] A. Ahmed, M. Saeed, A. Shaikh, et al., “Book Recommendation Using Collaborative Filtering Algorithm,” *Mathematical Problems in Engineering*, vol. 2023, Article ID 1514801, 10 pages, 2023. doi: [10.1155/2023/1514801](https://doi.org/10.1155/2023/1514801).
+
+\[2] N. Nabilah and Z. Zanariah, “Intelligence Book Recommendation System Using Collaborative Filtering,” *Journal of Computing Research and Innovation*, vol. 9, no. 1, 2024.
+
+\[3] S. Mukti and Z. K. A. Baizal, “Feature Enhanced Neural Collaborative Filtering (FENCF) for Book Recommendation System,” *IJCCS (Indonesian Journal of Computing and Cybernetics Systems)*, vol. 19, no. 2, pp. 173–185, 2025.
+
+\[4] C. Musto, P. Lops, and G. Semeraro, “Integrating Content-based and Collaborative Filtering in Recommender Systems: A Systematic Review,” *Information Fusion*, vol. 80, pp. 121–134, 2022. doi: [10.1016/j.inffus.2021.10.011](https://doi.org/10.1016/j.inffus.2021.10.011).
 
 ---
 
