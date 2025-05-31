@@ -1,9 +1,5 @@
 # Sistem-Rekomendasi-Buku
 
-Berikut adalah draft laporan proyek machine learning milikmu berdasarkan notebook yang telah kamu unggah dan mengikuti struktur serta gaya dari contoh yang kamu berikan:
-
----
-
 # Laporan Proyek Machine Learning - Christ
 
 ## Project Overview
