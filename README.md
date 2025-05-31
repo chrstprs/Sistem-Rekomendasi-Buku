@@ -632,12 +632,6 @@ recommended_isbns = [index_to_isbn[book_indices[i][0]] for i in top_indices]
 
 4. **Serangan Manipulasi (Shilling Attack)**
    Sistem ini lebih mudah dimanipulasi oleh pengguna palsu yang memberikan rating berlebihan untuk memengaruhi rekomendasi.
-
----
-
-Jika saya ingin, saya bisa bantu melengkapi notebook tersebut dengan contoh kode Collaborative Filtering berbasis user-user atau menggunakan pendekatan matrix factorization seperti SVD. Apakah saya ingin saya tambahkan itu ke notebook?
-
-
 ---
 
 ## Evaluation
