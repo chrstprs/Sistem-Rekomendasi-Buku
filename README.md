@@ -4,7 +4,7 @@
 
 ### Latar Belakang
 
-Di era digital saat ini, ketersediaan informasi dalam bentuk buku—baik cetak maupun digital—meningkat secara signifikan. Hal ini menciptakan tantangan bagi pembaca dalam menemukan bacaan yang sesuai dengan preferensi dan kebutuhan mereka, terutama bagi pengguna baru tanpa riwayat atau referensi sebelumnya. Untuk mengatasi permasalahan ini, sistem rekomendasi buku dapat menjadi solusi yang membantu pengguna menemukan bacaan yang relevan secara otomatis dan personal.
+Di era digital saat ini, ketersediaan informasi dalam bentuk buku baik cetak maupun digital meningkat secara signifikan. Hal ini menciptakan tantangan bagi pembaca dalam menemukan bacaan yang sesuai dengan preferensi dan kebutuhan mereka, terutama bagi pengguna baru tanpa riwayat atau referensi sebelumnya. Untuk mengatasi permasalahan ini, sistem rekomendasi buku dapat menjadi solusi yang membantu pengguna menemukan bacaan yang relevan secara otomatis dan personal.
 
 Sistem rekomendasi terbukti mampu meningkatkan kenyamanan pengguna dalam menelusuri konten dan produk digital, termasuk buku. Penerapan collaborative filtering dan content-based filtering telah banyak digunakan dalam sistem rekomendasi untuk meningkatkan relevansi hasil \[1]. Namun, masing-masing metode memiliki kelemahan. Collaborative filtering sering mengalami masalah cold-start dan sparsity data, sedangkan content-based cenderung terbatas pada rekomendasi yang serupa dengan preferensi pengguna sebelumnya \[2].
 
