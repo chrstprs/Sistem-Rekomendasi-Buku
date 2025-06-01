@@ -177,71 +177,78 @@ data_lengkap.isna().sum()
 
 ---
 
-## Data Preparation
-**Tahapan Proses:**
+Berikut adalah versi **rewrite lengkap dan rapi** untuk bagian **"Data Preparation"** yang mengintegrasikan proses pembersihan data, pembuatan dataset untuk content-based dan collaborative filtering, serta penjelasan TF-IDF sesuai dengan praktik di file `rekomendasi-buku.ipynb` dan kriteria rubrik modeling:
 
-### 🔹 **1. Menghapus data dengan nilai kosong**
+---
+
+##  **Data Preparation**
+
+Tahap ini berfokus pada pembersihan data mentah, penyusunan dataset akhir, serta pembuatan fitur yang diperlukan untuk dua jenis model rekomendasi: **Content-Based Filtering** dan **Collaborative Filtering**.
+
+---
+
+###  **1. Menghapus Nilai Kosong (NaN)**
 
 ```python
 clean_books = books.dropna()
 ```
 
-* Fungsi: Membersihkan data dari **baris yang mengandung nilai kosong (NaN)** agar tidak mengganggu proses analisis atau pemodelan.
+Menghapus baris yang memiliki nilai kosong untuk menghindari error atau bias saat pemodelan.
 
 ---
 
-### 🔹 **2. Memverifikasi tidak ada nilai kosong**
+###  **2. Verifikasi Nilai Kosong**
 
 ```python
 clean_books.isna().sum()
 ```
 
-* Fungsi: Mengecek kembali apakah semua nilai kosong sudah berhasil dihapus. Output-nya akan menunjukkan `0` jika semua kolom sudah bersih.
+Memastikan tidak ada kolom yang masih mengandung nilai kosong setelah proses pembersihan.
 
 ---
 
-### 🔹 **3. Mengurutkan data berdasarkan kolom `ISBN`**
+###  **3. Pengurutan Data Berdasarkan ISBN**
 
 ```python
 sorted_books = clean_books.sort_values(by='ISBN', ascending=True)
 ```
 
-* Fungsi: Mengurutkan data berdasarkan ISBN secara alfabetis. Hal ini membantu dalam **standarisasi urutan data**, terutama sebelum menghapus duplikat.
+Mengurutkan data berdasarkan ISBN untuk mempermudah proses identifikasi dan penghapusan duplikat.
 
 ---
 
-### 🔹 **4. Menyalin dan mengurutkan ulang**
+###  **4. Duplikasi dan Penyusunan Ulang Data**
 
 ```python
 prepared_books = sorted_books.copy()
 prepared_books = prepared_books.sort_values(by='ISBN')
 ```
 
-* Fungsi: Membuat **salinan** data yang telah diurutkan agar versi sebelumnya tidak terpengaruh, dan mengurutkan ulang sebagai jaminan data siap diproses lebih lanjut.
+Menduplikasi dan mengurutkan kembali dataset agar proses berikutnya tidak mengubah data asli.
 
 ---
 
-### 🔹 **5. Menghapus data duplikat berdasarkan ISBN**
+###  **5. Menghapus Duplikasi ISBN**
 
 ```python
 prepared_books = prepared_books.drop_duplicates(subset='ISBN')
 ```
 
-* Fungsi: Menghilangkan **entri buku yang memiliki ISBN sama**, karena duplikat bisa menyebabkan bias dalam sistem rekomendasi atau analisis data.
+Menghapus entri buku ganda yang memiliki ISBN sama untuk menghindari redundansi dalam rekomendasi.
 
 ---
 
-### 🔹 **6. Mengambil sampel acak sebanyak 10000 data**
+###  **6. Pengambilan Sampel Dataset (10.000 Data)**
 
 ```python
 sample_books = prepared_books.sample(n=10000, random_state=42)
 ```
 
-* Fungsi: Mengambil **sampel acak** dari data agar ukuran data tidak terlalu besar (menghemat memori dan waktu komputasi), namun tetap representatif. Penggunaan `random_state` memastikan hasilnya **reproducible**.
+Mengurangi ukuran dataset demi efisiensi pemrosesan tanpa kehilangan representasi data yang bermakna. Parameter `random_state` digunakan agar hasil dapat direproduksi.
 
 ---
 
-### 🔹 **7. Mengubah kolom tertentu menjadi list**
+###  **7. Konversi Kolom Menjadi List (Untuk Content-Based)**
 
 ```python
 list_ids = sample_books['ISBN'].to_list()
@@ -249,11 +256,11 @@ list_titles = sample_books['Book-Title'].to_list()
 list_authors = sample_books['Book-Author'].to_list()
 ```
 
-* Fungsi: Menyimpan data ke dalam list untuk **kemudahan dalam pemrosesan lanjutan**, misalnya dalam pembentukan fitur content-based atau pemetaan ID.
+Mengonversi beberapa kolom penting menjadi list untuk kebutuhan pemodelan berbasis konten.
 
 ---
 
-### 🔹 **8. Membentuk DataFrame akhir untuk modeling**
+###  **8. Penyusunan DataFrame Final untuk Content-Based Filtering**
 
 ```python
 books_final = pd.DataFrame({
@@ -263,91 +270,132 @@ books_final = pd.DataFrame({
 })
 ```
 
-* Fungsi: Menyusun ulang data menjadi bentuk yang **rapi dan siap pakai** untuk model machine learning atau sistem rekomendasi.
-  
+Membuat dataset akhir yang hanya berisi informasi relevan untuk content-based filtering, yaitu ID, judul, dan nama penulis.
+
 ---
 
-## Modeling & Results
+###  **9. Ekstraksi Fitur Teks dengan TF-IDF (Content-Based Filtering)**
+
+```python
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+vectorizer = TfidfVectorizer()
+vectorizer.fit(books_final['book_author'])
+tfidf_result = vectorizer.transform(books_final['book_author'])
+```
+
+Proses ini mengubah kolom `book_author` menjadi **representasi numerik berbasis TF-IDF (Term Frequency-Inverse Document Frequency)**. TF-IDF memberi bobot tinggi pada kata-kata yang sering muncul di dokumen tertentu tetapi jarang di dokumen lainnya, sehingga berguna untuk membedakan karakteristik setiap penulis.
+
+```python
+tfidf_dense = tfidf_result.todense()
+tfidf_df = pd.DataFrame(
+    tfidf_dense,
+    columns=vectorizer.get_feature_names_out(),
+    index=books_final['book_title']
+)
+```
+
+TF-IDF awalnya berbentuk sparse matrix, lalu dikonversi ke bentuk dense dan dibungkus dalam DataFrame agar siap digunakan pada proses **perhitungan kemiripan (cosine similarity)** di tahap modeling.
+
+---
+
+###  **10. Filter Data Berdasarkan Rating (Collaborative Filtering)**
+
+```python
+books_rating_clean = sample_books[sample_books['Book-Rating'] > 0]
+```
+
+Hanya menyimpan entri dengan rating lebih dari nol, karena rating nol tidak memberikan informasi berguna untuk collaborative filtering.
+
+---
+
+###  **11. Encoding Kolom `User-ID` dan `ISBN` (Collaborative Filtering)**
+
+```python
+user_ids = books_rating_clean['User-ID'].unique().tolist()
+book_ids = books_rating_clean['ISBN'].unique().tolist()
+
+user_to_index = {x: i for i, x in enumerate(user_ids)}
+book_to_index = {x: i for i, x in enumerate(book_ids)}
+
+books_rating_clean['user'] = books_rating_clean['User-ID'].map(user_to_index)
+books_rating_clean['book'] = books_rating_clean['ISBN'].map(book_to_index)
+```
+
+Melakukan encoding ID pengguna dan buku menjadi indeks numerik. Ini diperlukan karena sebagian besar algoritma pemodelan hanya menerima input numerik, khususnya untuk pembelajaran mendalam (deep learning).
+
+---
+
+###  **12. Normalisasi Skor Rating (Collaborative Filtering)**
+
+```python
+min_rating = books_rating_clean['Book-Rating'].min()
+max_rating = books_rating_clean['Book-Rating'].max()
+
+books_rating_clean['score'] = (books_rating_clean['Book-Rating'] - min_rating) / (max_rating - min_rating)
+```
+
+Skor rating dinormalisasi ke rentang 0–1 untuk memastikan model dapat belajar dengan stabil dan konvergen selama proses pelatihan.
+
+---
+Berikut adalah bagian **Modeling & Results** yang telah diperbaiki sesuai dengan kriteria penilaian yang kamu berikan, khususnya memindahkan proses TF-IDF ke bagian **Data Preparation**, serta menjelaskan proses model secara fokus pada tahap pemodelan dan hasilnya:
+
+---
+
+## **Modeling & Results**
 
 ---
 
 ## **1. Model Sistem Rekomendasi Content-Based Filtering**
-Content-Based Filtering merekomendasikan buku berdasarkan **kemiripan konten**, khususnya informasi dari penulis buku. Model ini menggunakan representasi teks dengan **TF-IDF (Term Frequency-Inverse Document Frequency)** dan menghitung **cosine similarity** untuk mengukur tingkat kemiripan antar buku.
 
-### a. Fitur yang Digunakan
+Model Content-Based Filtering pada proyek ini dibangun untuk merekomendasikan buku berdasarkan **kemiripan konten**, dalam hal ini adalah kemiripan nama penulis buku. Setelah proses **Data Preparation** menghasilkan representasi fitur dalam bentuk vektor TF-IDF, tahap modeling bertugas untuk menghitung tingkat kemiripan antar buku dan menyusun sistem rekomendasi berdasarkan skor tersebut.
 
-* **Fitur Konten:** Nama penulis buku (`book_author`)
-* **Representasi Teks:** TF-IDF Vectorizer dari Scikit-learn
-* **Similarity Metric:** Cosine Similarity antar vektor TF-IDF
+### a. Arsitektur Model
 
-### b. Tahapan Proses Pembentukan Model
+Model ini tidak menggunakan arsitektur pembelajaran terlatih (seperti neural network), melainkan mengandalkan pendekatan berbasis kemiripan. Secara umum, alurnya meliputi:
 
-Model ini bekerja melalui beberapa tahapan sebagai berikut:
+1. Input berupa representasi TF-IDF dari fitur konten (`book_author`).
+2. Penghitungan **cosine similarity** antar buku berdasarkan vektor TF-IDF.
+3. Penyusunan skor kemiripan ke dalam bentuk matriks.
+4. Fungsi pemanggilan rekomendasi berdasarkan judul buku yang diberikan.
 
-#### 1. Duplikasi Dataset Awal
+### b. Proses Modeling
 
-```python
-dataset = books_final.copy()
-```
-
-Dataset `books_final` disalin agar data asli tetap aman. Proses ini penting sebagai langkah awal sebelum dilakukan pemrosesan lebih lanjut.
-
-#### 2. Inisialisasi dan Pelatihan TF-IDF Vectorizer
-
-```python
-from sklearn.feature_extraction.text import TfidfVectorizer
-vectorizer = TfidfVectorizer()
-vectorizer.fit(dataset['book_author'])
-```
-
-TF-IDF digunakan untuk mengubah informasi nama penulis menjadi **vektor numerik**. Semakin sering sebuah kata muncul dalam satu dokumen tetapi jarang dalam keseluruhan dokumen, maka bobotnya lebih tinggi.
-
-#### 3. Transformasi Data Teks ke Bentuk TF-IDF
-
-```python
-tfidf_result = vectorizer.transform(dataset['book_author'])
-```
-
-Nama-nama penulis diubah menjadi **sparse matrix** berbentuk TF-IDF, yang menggambarkan pentingnya setiap kata dari sisi bobot dan frekuensi.
-
-#### 4. Konversi ke Bentuk Dense dan DataFrame
-
-```python
-tfidf_dense = tfidf_result.todense()
-tfidf_df = pd.DataFrame(tfidf_dense, columns=vectorizer.get_feature_names_out(), index=dataset['book_title'])
-```
-
-TF-IDF yang awalnya berupa sparse matrix dikonversi ke bentuk dense matrix dan disusun dalam DataFrame agar lebih mudah dianalisis.
-
-#### 5. Penghitungan Cosine Similarity
+#### 1. Penghitungan Cosine Similarity
 
 ```python
 from sklearn.metrics.pairwise import cosine_similarity
 similarity_scores = cosine_similarity(tfidf_result)
 ```
 
-Cosine Similarity menghitung tingkat kemiripan antar buku berdasarkan representasi vektor dari nama penulis. Semakin besar skor, semakin mirip dua buku tersebut.
+Cosine similarity digunakan untuk mengukur kemiripan antara dua vektor TF-IDF. Nilai similarity berkisar dari 0 hingga 1. Semakin tinggi nilainya, semakin mirip dua buku tersebut berdasarkan penulisnya.
 
-#### 6. Penyusunan Matriks Similarity dalam DataFrame
+#### 2. Penyusunan Matriks Similarity
 
 ```python
 similarity_df = pd.DataFrame(similarity_scores, index=dataset['book_title'], columns=dataset['book_title'])
 ```
 
-Matriks kemiripan dikemas dalam bentuk DataFrame agar dapat digunakan untuk pencarian rekomendasi berdasarkan judul buku.
+Hasil perhitungan cosine similarity disusun dalam bentuk matriks DataFrame, di mana setiap baris dan kolom mewakili judul buku, dan isi matriks adalah nilai similarity antar buku.
 
-#### 7. Fungsi Rekomendasi Buku
+#### 3. Fungsi Rekomendasi
 
 ```python
-def rekomendasi_buku(judul, similarity_data=..., metadata=..., jumlah=5):
-    ...
+def rekomendasi_buku(judul, similarity_data=similarity_df, metadata=dataset, jumlah=5):
+    index_buku = similarity_data.index.get_loc(judul)
+    skor_kemiripan = list(enumerate(similarity_data.iloc[index_buku]))
+    skor_kemiripan = sorted(skor_kemiripan, key=lambda x: x[1], reverse=True)
+    rekomendasi_index = [i[0] for i in skor_kemiripan[1:jumlah+1]]
+    return metadata.iloc[rekomendasi_index][['book_title', 'book_author']]
 ```
 
-Fungsi ini menerima input judul buku dan mengembalikan daftar buku dengan skor kemiripan tertinggi, berdasarkan penulis.
+Fungsi ini menerima input berupa judul buku dan mengembalikan daftar rekomendasi buku berdasarkan skor kemiripan tertinggi. Hasilnya berupa `Top-N` buku yang memiliki nama penulis paling mirip.
+
+---
 
 ### c. Evaluasi Model
 
-Evaluasi dilakukan untuk mengukur seberapa baik sistem dalam menyarankan buku yang memang mirip (ground truth) berdasarkan ambang kemiripan (misalnya 0.5).
+Evaluasi dilakukan untuk mengetahui seberapa efektif sistem dalam menyarankan buku yang dianggap mirip. Karena tidak menggunakan label eksplisit (unsupervised), evaluasi dilakukan menggunakan pendekatan threshold:
 
 ```python
 nilai_ambang = 0.5
@@ -361,77 +409,38 @@ prediksi = (sim_flat >= nilai_ambang).astype(int)
 precision, recall, f1, _ = precision_recall_fscore_support(truth_flat, prediksi, average='binary', zero_division=1)
 ```
 
-Hasil metrik evaluasi:
+**Hasil evaluasi:**
 
-* **Precision**: Seberapa banyak prediksi benar dari semua yang direkomendasikan.
-* **Recall**: Seberapa banyak buku mirip yang berhasil ditemukan.
-* **F1-Score**: Harmonik dari precision dan recall sebagai ukuran performa keseluruhan.
+* **Precision**: Mengukur seberapa banyak rekomendasi yang relevan dari seluruh hasil rekomendasi.
+* **Recall**: Mengukur seberapa banyak buku mirip yang berhasil ditemukan oleh sistem dari total yang relevan.
+* **F1-Score**: Nilai harmonik dari precision dan recall, menggambarkan performa keseluruhan.
 
 ---
 
-## **d. Contoh Hasil Rekomendasi Buku**
+### d. Contoh Hasil Rekomendasi
 
-Misalkan pengguna memilih buku: **"Letter to Lord Liszt"**
-
-Langkah-langkah:
-
-1. **Tampilkan Buku Awal:**
+Misalkan pengguna memilih buku dengan judul:
 
 ```python
 dataset[dataset['book_title'] == 'Letter to Lord Liszt']
 ```
-![image](https://github.com/user-attachments/assets/efc10caa-bed0-417d-bae8-187426133ee8)
+![Screenshot 2025-05-31 113003](https://github.com/user-attachments/assets/65418023-1bdd-4297-8c5b-73a38b8b2aaf)
 
-
-2. **Hasil Rekomendasi Top-5:**
+Sistem kemudian menghasilkan rekomendasi dengan fungsi:
 
 ```python
 rekomendasi_buku('Letter to Lord Liszt')
 ```
+![Screenshot 2025-05-31 113027](https://github.com/user-attachments/assets/829226eb-882e-4b61-bd46-7516cb713889)
 
-Hasil Rekomendasi:
-Rekomendasi di bawah ini dihasilkan karena nama penulis memiliki tingkat kemiripan tinggi (cosine similarity) dengan penulis buku awal.
-
-![image](https://github.com/user-attachments/assets/1bc58cbd-275b-4a2e-bee0-5c32643ab312)
-
+Daftar buku yang ditampilkan adalah buku dengan penulis yang memiliki kemiripan tinggi terhadap penulis buku tersebut, sesuai dengan hasil cosine similarity. Rekomendasi umumnya berasal dari buku-buku dengan nama penulis yang serupa atau identik.
 
 ---
 
-##  Kelebihan Content-Based Filtering
-
-1. **Tidak Terpengaruh oleh Pengguna Lain (Independen)**
-   Sistem content-based hanya bergantung pada **karakteristik item dan preferensi pengguna itu sendiri**, sehingga tidak memerlukan data dari pengguna lain. Ini menjadikan sistem lebih stabil dan konsisten dalam memberikan rekomendasi yang sesuai.
-
-2. **Tidak Terkena Masalah Cold Start untuk Item Baru**
-   Selama deskripsi item lengkap (misalnya: judul, genre, penulis, sinopsis), sistem dapat langsung merekomendasikan buku baru tanpa menunggu rating dari pengguna.
-
-3. **Personalisasi Lebih Mendalam**
-   Content-based filtering membangun **profil unik** untuk setiap pengguna berdasarkan preferensinya. Misalnya, jika seseorang suka buku bertema psikologi dan misteri, maka sistem akan lebih sering menyarankan buku dengan deskripsi serupa.
-
-4. **Aman dari Manipulasi**
-   Karena sistem tidak terlalu bergantung pada ulasan atau rating pengguna lain, maka lebih tahan terhadap **shilling attack** atau manipulasi dari pengguna palsu.
-
----
-
-##  Kekurangan Content-Based Filtering
-
-1. **Kurangnya Keanekaragaman (Overspecialization)**
-   Sistem cenderung merekomendasikan item yang **sangat mirip** dengan yang sudah disukai, sehingga mengurangi kemungkinan menemukan konten baru yang mungkin menarik dari kategori berbeda.
-
-2. **Cold Start pada Pengguna Baru**
-   Jika pengguna belum pernah memberikan feedback (misalnya belum pernah membaca atau memberi rating buku), maka sistem tidak memiliki dasar untuk membuat rekomendasi.
-
-3. **Ketergantungan pada Metadata**
-   Kualitas rekomendasi sangat bergantung pada **kelengkapan dan kualitas data item**. Jika informasi seperti genre, sinopsis, atau keyword tidak lengkap, maka hasil rekomendasi bisa kurang akurat.
-
-4. **Kurang Adaptif terhadap Perubahan Selera**
-   Jika pengguna mulai menyukai genre baru, sistem content-based membutuhkan waktu untuk menyesuaikan, karena ia belajar dari interaksi sebelumnya yang bisa jadi sudah tidak relevan lagi.
-
----
 ### 2. Collaborative Filtering (Neural Collaborative Filtering)
 **Tahapan Proses:**
 
-### 🔹 **A. Memilih Kolom yang Relevan**
+###  **A. Memilih Kolom yang Relevan**
 
 ```python
 selected_cols = ['User-ID', 'ISBN', 'Book-Rating']
@@ -444,7 +453,7 @@ ratings_df = preparation[selected_cols]
 
 ---
 
-### 🔹 **B. Encoding `User-ID` ke Index Numerik**
+###  **B. Encoding `User-ID` ke Index Numerik**
 
 ```python
 unique_users = ratings_df['User-ID'].drop_duplicates().tolist()
@@ -455,7 +464,7 @@ user_id_to_index = {user_id: idx for idx, user_id in enumerate(unique_users)}
 
 ---
 
-### 🔹 **C. Encoding `ISBN` ke Index Numerik**
+###  **C. Encoding `ISBN` ke Index Numerik**
 
 ```python
 unique_books = ratings_df['ISBN'].unique().tolist()
@@ -466,7 +475,7 @@ isbn_to_index = {isbn: idx for idx, isbn in enumerate(unique_books)}
 
 ---
 
-### 🔹 **D. Menyisipkan Kolom `user_index` dan `book_index`**
+###  **D. Menyisipkan Kolom `user_index` dan `book_index`**
 
 ```python
 ratings_df['user_index'] = ratings_df['User-ID'].map(user_id_to_index)
@@ -477,7 +486,7 @@ ratings_df['book_index'] = ratings_df['ISBN'].map(isbn_to_index)
 
 ---
 
-### 🔹 **E. Menentukan Jumlah Unik User dan Buku**
+###  **E. Menentukan Jumlah Unik User dan Buku**
 
 ```python
 total_users = len(user_id_to_index)
@@ -488,7 +497,7 @@ total_books = len(isbn_to_index)
 
 ---
 
-### 🔹 **F. Konversi Rating dan Normalisasi Skor**
+###  **F. Konversi Rating dan Normalisasi Skor**
 
 ```python
 ratings_df['score'] = ratings_df['Book-Rating'].astype(np.float32)
@@ -500,7 +509,7 @@ max_score = ratings_df['score'].max()
 
 ---
 
-### 🔹 **G. Sampling Dataset**
+###  **G. Sampling Dataset**
 
 ```python
 if ratings_df.shape[0] < 10000:
@@ -512,7 +521,7 @@ if ratings_df.shape[0] < 10000:
 
 ---
 
-### 🔹 **H. Persiapan Input dan Output Model**
+###  **H. Persiapan Input dan Output Model**
 
 ```python
 features = ratings_df[['user_index', 'book_index']].to_numpy()
@@ -523,7 +532,7 @@ labels = ratings_df['score'].apply(lambda s: (s - min_score) / (max_score - min_
 
 ---
 
-### 🔹 **I. Split Dataset untuk Pelatihan dan Validasi**
+###  **I. Split Dataset untuk Pelatihan dan Validasi**
 
 ```python
 x_train, x_val = features[:train_split], features[train_split:]
@@ -534,7 +543,7 @@ y_train, y_val = labels[:train_split], labels[train_split:]
 
 ---
 
-### 🔹 **J. Arsitektur Model Collaborative Filtering**
+###  **J. Arsitektur Model Collaborative Filtering**
 
 ```python
 class BookRecommender(Model):
@@ -545,7 +554,7 @@ class BookRecommender(Model):
 
 ---
 
-### 🔹 **K. Kompilasi dan Pelatihan Model**
+###  **K. Kompilasi dan Pelatihan Model**
 
 ```python
 model.compile(...)
@@ -556,7 +565,7 @@ training_history = model.fit(...)
 
 ---
 
-### 🔹 **L. Visualisasi Hasil Pelatihan**
+###  **L. Visualisasi Hasil Pelatihan**
 
 ```python
 plt.plot(training_history.history['root_mean_squared_error'])
@@ -570,7 +579,7 @@ plt.plot(training_history.history['val_root_mean_squared_error'])
 
 ---
 
-### 🔹 **M. Menyiapkan Data untuk Prediksi Buku Baru**
+###  **M. Menyiapkan Data untuk Prediksi Buku Baru**
 
 ```python
 book_candidates = books_new[~books_new['id'].isin(visited_books['ISBN'])]
@@ -580,7 +589,7 @@ book_candidates = books_new[~books_new['id'].isin(visited_books['ISBN'])]
 
 ---
 
-### 🔹 **N. Menyusun Input Prediksi dan Prediksi Rekomendasi**
+###  **N. Menyusun Input Prediksi dan Prediksi Rekomendasi**
 
 ```python
 input_array = np.hstack((np.full((len(book_indices), 1), user_idx), book_indices))
@@ -591,7 +600,7 @@ predicted_scores = model.predict(input_array).flatten()
 
 ---
 
-### 🔹 **O. Menampilkan Rekomendasi Buku**
+###  **O. Menampilkan Rekomendasi Buku**
 
 ```python
 recommended_isbns = [index_to_isbn[book_indices[i][0]] for i in top_indices]
@@ -635,69 +644,71 @@ recommended_isbns = [index_to_isbn[book_indices[i][0]] for i in top_indices]
 ---
 
 ## Evaluation
+
 ---
 
 ### **1. Content-Based Filtering (Gambar Pertama)**
 
 #### **Kode dan Proses Evaluasi**
-- **Dataset**: saya menggunakan 10.000 sampel untuk evaluasi (`ukuran_sampel = 10000`).
-- **Metrik Evaluasi**: saya menghitung **similarity scores** antara **truth** (data asli) dan **prediksi** (hasil model) menggunakan **cosine similarity** dengan fungsi `sklearn.metrics.cosine_similarity`. Nilai prediksi diambil berdasarkan threshold tertentu (`nilai_ambang`).
-- **Metrik yang Digunakan**:
-  - **Precision, Recall, dan F1-Score**: Diukur menggunakan `sklearn.metrics` dengan metode `precision_recall_fscore_support`.
-  - Parameter `average='binary'` menunjukkan bahwa ini adalah evaluasi untuk klasifikasi biner (benar/salah).
-  - `zero_division=1` digunakan untuk menangani kasus pembagian dengan nol.
 
- ### **Rumus**:
- #### Precision@K
+* **Dataset**: Evaluasi dilakukan menggunakan 10.000 sampel (`ukuran_sampel = 10000`).
+* **Metrik Evaluasi**: Menghitung **similarity scores** antara data asli (**truth**) dan hasil prediksi model (**prediksi**) menggunakan **cosine similarity** dari `sklearn.metrics.cosine_similarity`. Nilai prediksi diambil dengan menggunakan threshold tertentu (`nilai_ambang`).
+* **Metrik yang Digunakan**:
 
-- **Precision@K** mengukur proporsi film yang direkomendasikan oleh sistem yang benar-benar relevan bagi pengguna.  
-- Nilai precision yang tinggi berarti sistem rekomendasi mampu memberikan rekomendasi yang tepat sasaran dan meminimalkan rekomendasi yang tidak sesuai dengan preferensi pengguna.
+  * **Precision, Recall, dan F1-Score** dihitung dengan fungsi `precision_recall_fscore_support` dari `sklearn.metrics`.
+  * Parameter `average='binary'` digunakan karena ini merupakan evaluasi klasifikasi biner (item relevan atau tidak).
+  * `zero_division=1` menghindari error pembagian dengan nol.
 
-Rumus Precision@K:
+#### **Rumus**
+
+##### Precision\@K
+
+Precision\@K mengukur proporsi rekomendasi yang benar-benar relevan dengan preferensi pengguna. Precision yang tinggi menandakan sistem memberikan rekomendasi yang tepat dan meminimalkan rekomendasi yang tidak relevan.
 
 $$
 \text{Precision@K} = \frac{|\text{Recommended Items} \cap \text{Relevant Items}|}{K}
 $$
 
-#### Recall@K
+##### Recall\@K
 
-- **Recall@K** mengukur proporsi film relevan yang berhasil ditemukan dan direkomendasikan oleh sistem dari seluruh film yang relevan di dataset.  
-- Nilai recall yang tinggi menunjukkan sistem mampu menemukan sebagian besar film yang disukai pengguna, sehingga cakupan rekomendasi cukup baik.
-
-Rumus Recall@K:
+Recall\@K mengukur seberapa banyak item relevan berhasil ditemukan dan direkomendasikan dari seluruh item yang relevan dalam dataset. Recall yang tinggi berarti cakupan rekomendasi baik.
 
 $$
 \text{Recall@K} = \frac{|\text{Recommended Items} \cap \text{Relevant Items}|}{|\text{Relevant Items}|}
 $$
 
-Dimana:  
-- *Recommended Items* adalah daftar film yang direkomendasikan oleh sistem (Top-K),  
-- *Relevant Items* adalah film yang benar-benar disukai pengguna (misalnya berdasarkan rating ≥ 4),  
-- *K* adalah jumlah film teratas yang direkomendasikan.
+Dimana:
 
+* *Recommended Items* adalah daftar rekomendasi Top-K,
+* *Relevant Items* adalah item yang benar-benar disukai pengguna (contoh: rating ≥ 4),
+* *K* adalah jumlah item teratas yang direkomendasikan.
 
 #### **Hasil Evaluasi**
-- **Precision**: 1.00
-  - Artinya, 100% dari prediksi yang dianggap benar oleh model memang benar (tidak ada false positive).
-- **Recall**: 1.00
-  - Artinya, model berhasil mendeteksi 100% dari semua data yang benar (tidak ada false negative).
-- **F1-Score**: 1.00
-  - F1-Score adalah harmonic mean dari precision dan recall, sehingga nilai 1.00 menunjukkan performa sempurna.
+
+* **Precision**: 1.00
+  Menunjukkan 100% prediksi positif benar (tidak ada false positive).
+* **Recall**: 1.00
+  Menunjukkan model berhasil mendeteksi 100% data yang relevan (tidak ada false negative).
+* **F1-Score**: 1.00
+  Nilai harmonic mean precision dan recall menunjukkan performa sempurna.
 
 #### **Interpretasi**
-- Model **Content-Based Filtering** yang saya evaluasi menunjukkan performa **sempurna** dengan precision, recall, dan F1-Score sebesar 1.00. Ini berarti model sangat akurat dalam memprediksi item yang relevan berdasarkan fitur konten (misalnya, deskripsi atau metadata). Tidak ada kesalahan prediksi (false positive atau false negative) dalam sampel yang dievaluasi.
+
+Model **Content-Based Filtering** yang diuji menunjukkan performa **sempurna** dengan precision, recall, dan F1-Score sama dengan 1.00. Ini berarti model sangat akurat dalam merekomendasikan item berdasarkan fitur konten seperti deskripsi atau metadata tanpa kesalahan prediksi.
 
 ---
 
 ### **2. Collaborative Filtering (Gambar Kedua)**
 
 #### **Kode dan Proses Evaluasi**
-- **Metrik Evaluasi**: saya menggunakan **RMSE (Root Mean Squared Error)** untuk mengukur error prediksi model.
-  - RMSE dihitung dengan fungsi `root_mean_squared_error` dari `sklearn.metrics`.
-  - saya memplot grafik RMSE untuk data **training** dan **validation** selama 25 epoch menggunakan `matplotlib`.
-- **Grafik**: Grafik menunjukkan perubahan RMSE pada data training (biru) dan validation (oranye) seiring bertambahnya epoch.
 
-#### Rumus RMSE dan MAE
+* **Metrik Evaluasi**: Menggunakan **RMSE (Root Mean Squared Error)** untuk mengukur kesalahan prediksi model.
+
+  * RMSE dihitung dengan fungsi `root_mean_squared_error` dari `sklearn.metrics`.
+  * Grafik RMSE diplot untuk data **training** dan **validation** selama 25 epoch menggunakan `matplotlib`.
+* **Grafik** menunjukkan perubahan RMSE pada data training (warna biru) dan validation (warna oranye) dari epoch 1 sampai 25.
+
+#### **Rumus RMSE dan MAE**
 
 $$
 \text{RMSE} = \sqrt{ \frac{1}{n} \sum_{i=1}^{n} (\hat{y}_i - y_i)^2 }
@@ -708,24 +719,31 @@ $$
 $$
 
 Dimana:
-- ŷᵢ adalah nilai prediksi rating,
-- yᵢ adalah nilai rating sebenarnya,
-- n adalah jumlah sampel.
-  
-#### **Hasil Evaluasi**
-- **Grafik RMSE**:
-  - **Training RMSE**:
-    - Mulai dari sekitar 0.30 pada epoch awal.
-    - Terus menurun hingga mendekati 0.05 pada epoch 25.
-  - **Validation RMSE**:
-    - Mulai dari sekitar 0.32 pada epoch awal.
-    - Menurun hingga mendekati 0.30 pada epoch 25, kemudian stabil.
-- **Tren**:
-  - RMSE untuk data training menurun lebih tajam dibandingkan validation, menunjukkan bahwa model belajar dengan baik pada data training.
-  - RMSE validation lebih tinggi dan stabil di sekitar 0.30, yang menunjukkan adanya sedikit **overfitting** (model terlalu fit pada data training sehingga performanya pada data validation tidak sebaik pada data training).
 
-#### Visualisasi
-![image](https://github.com/user-attachments/assets/fe77f30c-9a25-4426-9028-c309b8de727e)
+* ŷᵢ = nilai prediksi rating,
+* yᵢ = nilai rating asli,
+* n = jumlah sampel.
+
+#### **Hasil Evaluasi**
+
+* **Training RMSE**:
+  Dimulai sekitar 0.30 pada epoch awal, menurun secara signifikan hingga mendekati 0.05 pada epoch ke-25.
+* **Validation RMSE**:
+  Dimulai sekitar 0.32 pada epoch awal, menurun hingga mencapai **0.3057** pada epoch ke-25, kemudian stabil.
+  (Catatan: Nilai 0.3057 ini adalah nilai validasi RMSE terakhir sesuai hasil pada file notebook.)
+
+#### **Interpretasi Tren**
+
+* RMSE pada data training menurun tajam, menandakan model belajar dengan baik pada data training.
+* RMSE validasi lebih tinggi dan cenderung stabil di sekitar 0.3057, menunjukkan model mengalami sedikit **overfitting**, yakni performa di data validasi tidak sebaik di data training.
+
+#### **Visualisasi**
+
+![Grafik RMSE Training dan Validation](https://github.com/user-attachments/assets/fe77f30c-9a25-4426-9028-c309b8de727e) 
+
+#### **Hasil Training Model**
+![image](https://github.com/user-attachments/assets/d2b0f2f2-65f3-4a3c-a58a-489bcf8d7baf)
+
 
 ---
 
